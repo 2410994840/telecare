@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        PATH = "/usr/local/bin:/usr/bin:/bin"
         REGISTRY     = 'ghcr.io'
         IMAGE_PREFIX = '2410994840/telecare'
     }
