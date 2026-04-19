@@ -58,5 +58,21 @@ pipeline {
                 }
             }
         }
+        stage('Security Scan') {
+            steps {
+                script {
+                    def GIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+
+                    ['backend', 'frontend', 'ai-service'].each { svc ->
+                        def image = "ghcr.io/2410994840/telecare-${svc}:${GIT_SHA}"
+
+                        sh """
+                        echo "Scanning ${image}"
+                        trivy image --severity HIGH,CRITICAL --no-progress ${image}
+                        """
+            }
+        }
+    }
+}
     }
 }
