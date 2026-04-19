@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/opt/homebrew/bin/sonar-scanner"
         REGISTRY     = 'ghcr.io'
         IMAGE_PREFIX = '2410994840/telecare'
     }
