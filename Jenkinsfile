@@ -8,6 +8,8 @@ pipeline {
     }
 
     stages {
+
+        // ---------------- BUILD ----------------
         stage('Build') {
             steps {
                 script {
@@ -31,6 +33,29 @@ pipeline {
                             """
                         }
                     }
+                }
+            }
+        }
+
+        // ---------------- TEST ----------------
+        stage('Test') {
+            steps {
+                echo 'Running tests (dummy)'
+                // later you can add npm test here
+            }
+        }
+
+        // ---------------- CODE QUALITY ----------------
+        stage('Code Quality') {
+            steps {
+                dir('frontend') {
+                    sh '''
+                    sonar-scanner \
+                      -Dsonar.projectKey=telecare \
+                      -Dsonar.sources=. \
+                      -Dsonar.host.url=http://localhost:9000 \
+                      -Dsonar.login=YOUR_TOKEN
+                    '''
                 }
             }
         }
