@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6
+    container_name: telecare-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-changeme}
+      MONGO_INITDB_DATABASE: telecare
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - telecare-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend:
+    build: ./backend
+    container_name: telecare-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: mongodb://admin:${MONGO_PASSWORD:-changeme}@mongodb:27017/telecare?authSource=admin
+      JWT_SECRET: ${JWT_SECRET}
+      AES_SECRET: ${AES_SECRET}
+      AI_SERVICE_URL: http://ai-service:8000
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - telecare-net
+    ports:
+      - "5000:5000"
+
+  ai-service:
+    build: ./ai-service
+    container_name: telecare-ai
+    restart: unless-stopped
+    networks:
+      - telecare-net
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    container_name: telecare-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - telecare-net
+    ports:
+      - "80:80"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: telecare-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - telecare-net
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: telecare-grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - telecare-net
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  mongo_data:
+  grafana_data:
+
+networks:
+  telecare-net:
+    driver: bridge

@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: telecare
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: telecare-secrets
+  namespace: telecare
+type: Opaque
+stringData:
+  NODE_ENV: "production"
+  PORT: "5000"
+  MONGO_URI: "mongodb+srv://<user>:<pass>@cluster.mongodb.net/telecare"
+  JWT_SECRET: "<replace-with-strong-secret>"
+  AES_SECRET: "<replace-with-32-char-secret>"
+  AI_SERVICE_URL: "http://ai-service:8000"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: telecare-ingress
+  namespace: telecare
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+    - hosts:
+        - telecare.example.com
+      secretName: telecare-tls
+  rules:
+    - host: telecare.example.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 5000
+          - path: /ws
+            pathType: Prefix
+            backend:
+              service:
+                name: backend-service
+                port:
+                  number: 5000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-service
+                port:
+                  number: 80
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-hpa
+  namespace: telecare
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: telecare-backend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
