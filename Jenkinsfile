@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/usr/local/bin:/usr/bin:/bin"
+        PATH = "/opt/homebrew/bin/sonar-scanner"
         REGISTRY     = 'ghcr.io'
         IMAGE_PREFIX = '2410994840/telecare'
     }
@@ -50,7 +50,7 @@ pipeline {
             steps {
                 dir('frontend') {
                     sh '''
-                    sonar-scanner \
+                    npx sonar-scanner \
                       -Dsonar.projectKey=telecare \
                       -Dsonar.sources=. \
                       -Dsonar.host.url=http://localhost:9000 \
