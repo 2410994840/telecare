@@ -40,6 +40,8 @@ app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() 
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5001;
-httpServer.listen(PORT, () => console.log(`TeleCare backend running on port ${PORT}`));
+if (process.env.NODE_ENV !== 'test') {
+  httpServer.listen(PORT, () => console.log(`TeleCare backend running on port ${PORT}`));
+}
 
 module.exports = app;
