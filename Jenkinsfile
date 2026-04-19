@@ -13,7 +13,7 @@ pipeline {
                     def GIT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
 
                     withCredentials([usernamePassword(
-                        credentialsId: '2410994840-ghcr-creds',
+                        credentialsId: '208',
                         usernameVariable: 'GHCR_USER',
                         passwordVariable: 'GHCR_TOKEN'
                     )]) {
