@@ -53,7 +53,7 @@ pipeline {
                       -Dsonar.projectKey=telecare \
                       -Dsonar.sources=. \
                       -Dsonar.host.url=http://localhost:9000 \
-                      -Dsonar.login=YOUR_TOKEN
+                      -Dsonar.login=sqa_180f1e5d9f9b8b00751e74019b4000c7453cd248
                     '''
                 }
             }
