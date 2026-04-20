@@ -8,7 +8,6 @@ pipeline {
 
     stages {
 
-        // ---------------- BUILD ----------------
         stage('Build') {
             steps {
                 script {
@@ -36,31 +35,26 @@ pipeline {
             }
         }
 
-        // ---------------- TEST ----------------
         stage('Test') {
             steps {
                 echo 'Running tests (dummy)'
             }
         }
 
-        // ---------------- CODE QUALITY ----------------
         stage('Code Quality') {
             steps {
-                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                    dir('frontend') {
-                        sh '''
-                        npx sonar-scanner \
-                          -Dsonar.projectKey=telecare \
-                          -Dsonar.sources=. \
-                          -Dsonar.host.url=http://localhost:9000 \
-                          -Dsonar.login=$SONAR_TOKEN
-                        '''
-                    }
+                dir('frontend') {
+                    sh '''
+                    npx sonar-scanner \
+                      -Dsonar.projectKey=telecare \
+                      -Dsonar.sources=. \
+                      -Dsonar.host.url=http://localhost:9000 \
+                      -Dsonar.login=sqa_180f1e5d9f9b8b00751e74019b4000c7453cd248
+                    '''
                 }
             }
         }
 
-        // ---------------- SECURITY ----------------
         stage('Security Scan') {
             steps {
                 script {
@@ -78,26 +72,25 @@ pipeline {
             }
         }
 
-        // ---------------- DEPLOY ----------------
         stage('Deploy') {
-    steps {
-        withCredentials([
-            string(credentialsId: 'hiemysecret08', variable: 'JWT_SECRET'),
-            string(credentialsId: 'hiemysecret0808', variable: 'AES_SECRET')
-        ]) {
-            script {
-                sh '''
-                    echo "Stopping old containers..."
-                    docker-compose down || true
+            steps {
+                withCredentials([
+                    string(credentialsId: 'hiemysecret08', variable: 'JWT_SECRET'),
+                    string(credentialsId: 'hiemysecret0808', variable: 'AES_SECRET')
+                ]) {
+                    script {
+                        sh '''
+                            echo "Stopping old containers..."
+                            docker-compose down || true
 
-                    echo "Building and starting containers..."
-                    docker-compose up -d --build
+                            echo "Deploying application..."
+                            docker-compose up -d --build
 
-                    echo "Deployment successful"
-                '''
+                            echo "DEPLOYMENT DONE 🚀"
+                        '''
+                    }
+                }
             }
         }
-    }
-}
     }
 }
