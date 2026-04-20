@@ -80,23 +80,24 @@ pipeline {
 
         // ---------------- DEPLOY ----------------
         stage('Deploy') {
-            steps {
-                withCredentials([
-                    string(credentialsId: 'hiemysecret08', variable: 'JWT_SECRET'),
-                    string(credentialsId: 'hiemysecret0808', variable: 'AES_SECRET')
-                ]) {
-                    sh '''
-                        echo "Stopping old containers..."
-                        docker-compose down || true
+    steps {
+        withCredentials([
+            string(credentialsId: 'hiemysecret08', variable: 'JWT_SECRET'),
+            string(credentialsId: 'hiemysecret0808', variable: 'AES_SECRET')
+        ]) {
+            script {
+                sh '''
+                    echo "Stopping old containers..."
+                    docker-compose down || true
 
-                        echo "Pulling latest images..."
-                        docker-compose pull
+                    echo "Building and starting containers..."
+                    docker-compose up -d --build
 
-                        echo "Starting containers..."
-                        docker-compose up -d
-                    '''
-                }
+                    echo "Deployment successful"
+                '''
             }
         }
+    }
+}
     }
 }
