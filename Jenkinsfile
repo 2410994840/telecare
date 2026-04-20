@@ -50,7 +50,7 @@ pipeline {
                     -Dsonar.projectKey=telecare \
                     -Dsonar.sources=. \
                     -Dsonar.host.url=http://localhost:9000 \
-                    -Dsonar.token=$SONAR_TOKEN
+                    -Dsonar.login=$SONAR_TOKEN
     """
 }
                 }
