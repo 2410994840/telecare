@@ -82,7 +82,11 @@ pipeline {
                         sh '''
                             echo "Stopping old containers..."
                             docker-compose down || true
+                            echo "Cleaning old containers..."
 
+                            docker rm -f telecare-ai telecare-mongo telecare-backend telecare-frontend telecare-grafana telecare-prometheus || true
+
+                            docker-compose down --remove-orphans
                             echo "Deploying application..."
                             docker-compose up -d --build
 
