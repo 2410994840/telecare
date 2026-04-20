@@ -2,6 +2,8 @@ pipeline {
     agent any
 
     environment {
+        JWT_SECRET   = credentials('hiemysecret08')
+        AES_SECRET   = credentials('hiemysecret0808')
         REGISTRY     = 'ghcr.io'
         IMAGE_PREFIX = '2410994840/telecare'
     }
