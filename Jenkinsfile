@@ -44,13 +44,15 @@ pipeline {
         stage('Code Quality') {
             steps {
                 dir('frontend') {
-                    sh '''
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    sh """
                     npx sonar-scanner \
-                      -Dsonar.projectKey=telecare \
-                      -Dsonar.sources=. \
-                      -Dsonar.host.url=http://localhost:9000 \
-                      -Dsonar.token=squ_0c363d4b9a8b36668040a04d4da995177f4aef98
-                    '''
+                    -Dsonar.projectKey=telecare \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.login=$SONAR_TOKEN
+    """
+}
                 }
             }
         }
