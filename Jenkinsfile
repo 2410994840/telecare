@@ -48,8 +48,8 @@ pipeline {
                     npx sonar-scanner \
                       -Dsonar.projectKey=telecare \
                       -Dsonar.sources=. \
-                      -Dsonar.host.url=http://localhost:9000 \
-                      -Dsonar.login=sqa_180f1e5d9f9b8b00751e74019b4000c7453cd248
+                      -Dsonar.host.url=http://host.docker.internal:9000 \
+                      -Dsonar.login=squ_23081761330a0077ebea55bcac52768f153aeb56
                     '''
                 }
             }
