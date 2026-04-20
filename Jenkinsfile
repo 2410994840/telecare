@@ -2,8 +2,6 @@ pipeline {
     agent any
 
     environment {
-        JWT_SECRET   = credentials('hiemysecret08')
-        AES_SECRET   = credentials('hiemysecret0808')
         REGISTRY     = 'ghcr.io'
         IMAGE_PREFIX = '2410994840/telecare'
     }
@@ -42,24 +40,27 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Running tests (dummy)'
-                // later you can add npm test here
             }
         }
 
         // ---------------- CODE QUALITY ----------------
         stage('Code Quality') {
             steps {
-                dir('frontend') {
-                    sh '''
-                    npx sonar-scanner \
-                      -Dsonar.projectKey=telecare \
-                      -Dsonar.sources=. \
-                      -Dsonar.host.url=http://localhost:9000 \
-                      -Dsonar.login=sqa_180f1e5d9f9b8b00751e74019b4000c7453cd248
-                    '''
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                    dir('frontend') {
+                        sh '''
+                        npx sonar-scanner \
+                          -Dsonar.projectKey=telecare \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=http://localhost:9000 \
+                          -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
+
+        // ---------------- SECURITY ----------------
         stage('Security Scan') {
             steps {
                 script {
@@ -72,13 +73,18 @@ pipeline {
                         echo "Scanning ${image}"
                         trivy image --severity HIGH,CRITICAL --no-progress ${image}
                         """
+                    }
+                }
             }
         }
-    }
-}
+
+        // ---------------- DEPLOY ----------------
         stage('Deploy') {
             steps {
-                script {
+                withCredentials([
+                    string(credentialsId: 'hiemysecret08', variable: 'JWT_SECRET'),
+                    string(credentialsId: 'hiemysecret0808', variable: 'AES_SECRET')
+                ]) {
                     sh '''
                         echo "Stopping old containers..."
                         docker-compose down || true
@@ -89,8 +95,8 @@ pipeline {
                         echo "Starting containers..."
                         docker-compose up -d
                     '''
+                }
+            }
         }
-    }
-}
     }
 }
