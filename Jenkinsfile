@@ -84,8 +84,8 @@ pipeline {
                         sh '''
                         echo "Cleaning ports..."
 
-                        lsof -ti:5000 | xargs kill -9 || true
-                        lsof -ti:5001 | xargs kill -9 || true
+                        docker ps -q --filter "publish=5000" | xargs -r docker stop
+                        docker ps -q --filter "publish=5001" | xargs -r docker stop
                             echo "Stopping old containers..."
                             docker-compose down || true
                             echo "Cleaning old containers..."
