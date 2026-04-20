@@ -71,7 +71,7 @@ pipeline {
 
                         sh """
                         echo "Scanning ${image}"
-                        trivy image --severity HIGH,CRITICAL --no-progress ${image}
+                        trivy image --severity HIGH,CRITICAL --no-progress --exit-code 0 ${image}
                         """
                     }
                 }
