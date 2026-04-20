@@ -74,5 +74,21 @@ pipeline {
         }
     }
 }
+        stage('Deploy') {
+            steps {
+                script {
+                    sh '''
+                        echo "Stopping old containers..."
+                        docker-compose down || true
+
+                        echo "Pulling latest images..."
+                        docker-compose pull
+
+                        echo "Starting containers..."
+                        docker-compose up -d
+                    '''
+        }
+    }
+}
     }
 }

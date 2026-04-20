@@ -13,14 +13,9 @@ services:
       - mongo_data:/data/db
     networks:
       - telecare-net
-    healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   backend:
-    build: ./backend
+    image: ghcr.io/2410994840/telecare-backend:latest
     container_name: telecare-backend
     restart: unless-stopped
     environment:
@@ -32,15 +27,14 @@ services:
       AI_SERVICE_URL: http://ai-service:8000
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
     depends_on:
-      mongodb:
-        condition: service_healthy
+      - mongodb
     networks:
       - telecare-net
     ports:
       - "5000:5000"
 
   ai-service:
-    build: ./ai-service
+    image: ghcr.io/2410994840/telecare-ai-service:latest
     container_name: telecare-ai
     restart: unless-stopped
     networks:
@@ -49,7 +43,7 @@ services:
       - "8000:8000"
 
   frontend:
-    build: ./frontend
+    image: ghcr.io/2410994840/telecare-frontend:latest
     container_name: telecare-frontend
     restart: unless-stopped
     depends_on:
