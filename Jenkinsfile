@@ -82,8 +82,8 @@ pipeline {
                         sh '''
                         echo "Cleaning ports..."
 
-                        lsof -ti :5000 | xargs kill -9 || true
-                        lsof -ti :5004 | xargs kill -9 || true
+                        fuser -k 5000/tcp || true
+                        fuser -k 5004/tcp || true
                             echo "Stopping old containers..."
                             docker-compose down || true
                             echo "Cleaning old containers..."
