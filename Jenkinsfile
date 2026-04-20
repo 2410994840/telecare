@@ -46,7 +46,7 @@ pipeline {
                 dir('frontend') {
                     sh '''
                     npx sonar-scanner \
-                      -Dsonar.projectKey=tele \
+                      -Dsonar.projectKey=telecare \
                       -Dsonar.sources=. \
                       -Dsonar.host.url=http://localhost:9000 \
                       -Dsonar.token=squ_0c363d4b9a8b36668040a04d4da995177f4aef98
