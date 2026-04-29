@@ -90,18 +90,17 @@ pipeline {
         '''
     }
 }
-    stage('Monitoring') {
+    stage('Monitoring & Alerting') {
     steps {
-        echo "Monitoring application health..."
+        script {
+            def status = sh(script: 'curl -s -o /dev/null -w "%{http_code}" http://localhost:5000', returnStdout: true).trim()
 
-        sh '''
-        echo "Checking backend health..."
-        curl -f http://localhost:5000 || echo "Backend is DOWN!"
-
-        echo "Checking frontend..."
-        curl -f http://localhost || echo "Frontend is DOWN!"
-
-        echo "Monitoring completed"
-        '''
+            if (status != "200") {
+                echo "ALERT: Backend is DOWN!"
+                error("Stopping pipeline due to failure")
+            } else {
+                echo "Backend is healthy"
+            }
+        }
     }
 }}}
