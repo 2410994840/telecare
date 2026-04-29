@@ -71,6 +71,22 @@ pipeline {
                             echo "Deploying application..."
                             docker-compose up -d --build
 
-                            echo "DEPLOYMENT DONE 🚀"
+                            echo "DEPLOYMENT DONE "
                         '''
-                    }}}}}}
+            
+                    }}}}
+    stage('Release') {
+    steps {
+        echo "Promoting application to Production..."
+
+        sh '''
+        echo "Stopping existing production containers..."
+        docker-compose down || true
+
+        echo "Deploying to production environment..."
+        docker-compose -f docker-compose.yml up -d
+
+        echo "Release completed successfully!"
+        '''
+    }
+}}}
