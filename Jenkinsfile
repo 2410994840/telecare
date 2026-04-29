@@ -93,16 +93,24 @@ pipeline {
     stage('Monitoring & Alerting') {
     steps {
         script {
-            def status = sh(
-                script: 'curl -s -o /dev/null -w "%{http_code}" http://localhost:5000 || echo 000',
-                returnStdout: true
-            ).trim()
+            sh 'sleep 10'
 
-            if (status != "200") {
-                echo "ALERT: Backend is DOWN!"
-                echo "Issue logged, but pipeline continues"
-            } else {
-                echo "Backend is healthy"
+            def backend = sh(script: 'curl -s -o /dev/null -w "%{http_code}" http://localhost:5000 || echo 000', returnStdout: true).trim()
+            def prometheus = sh(script: 'curl -s -o /dev/null -w "%{http_code}" http://localhost:9090 || echo 000', returnStdout: true).trim()
+            def grafana = sh(script: 'curl -s -o /dev/null -w "%{http_code}" http://localhost:3001 || echo 000', returnStdout: true).trim()
+
+            if (backend != "200") {
+                echo "ALERT: Backend DOWN"
+            }
+            if (prometheus != "200") {
+                echo "ALERT: Prometheus DOWN"
+            }
+            if (grafana != "200") {
+                echo "ALERT: Grafana DOWN"
+            }
+
+            if (backend == "200" && prometheus == "200" && grafana == "200") {
+                echo "All systems healthy"
             }
         }
     }
