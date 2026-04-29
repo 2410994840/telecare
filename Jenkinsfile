@@ -89,4 +89,19 @@ pipeline {
         echo "Release completed successfully!"
         '''
     }
+}
+    stage('Monitoring') {
+    steps {
+        echo "Monitoring application health..."
+
+        sh '''
+        echo "Checking backend health..."
+        curl -f http://localhost:5000 || echo "Backend is DOWN!"
+
+        echo "Checking frontend..."
+        curl -f http://localhost || echo "Frontend is DOWN!"
+
+        echo "Monitoring completed"
+        '''
+    }
 }}}
